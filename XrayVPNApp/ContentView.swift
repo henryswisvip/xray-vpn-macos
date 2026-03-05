@@ -5,6 +5,7 @@ struct ContentView: View {
     @EnvironmentObject private var proxyManager: ProxyManager
     @State private var selectedServerID = ServiceConfig.defaultServerID
     @State private var pulse = false
+    @State private var copiedSocksURL = false
 
     private var selectedServer: ManagedServer? {
         ServiceConfig.server(withID: selectedServerID)
@@ -42,12 +43,28 @@ struct ContentView: View {
         !proxyManager.isBusy && selectedServer != nil
     }
 
+    private var connectionHint: String {
+        switch proxyManager.status {
+        case .running:
+            return "Protected. Traffic is routed through \(selectedServer?.name ?? \"the selected server\")."
+        case .starting:
+            return "Starting secure route and applying system proxy settings..."
+        case .stopping:
+            return "Disconnecting and restoring your previous network settings..."
+        case .failed:
+            return "Connection failed. Check the error details and try a different server."
+        case .stopped:
+            return "Disconnected. Choose a server and connect when ready."
+        }
+    }
+
     var body: some View {
         ZStack {
             backgroundLayer
 
             VStack(spacing: 18) {
                 headerCard
+                statusDetailCard
                 routeCard
                 actionCard
 
@@ -70,6 +87,29 @@ struct ContentView: View {
         .onAppear {
             pulse = true
         }
+    }
+
+    private var statusDetailCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Connection")
+                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .foregroundStyle(Color.white.opacity(0.75))
+
+            Text(connectionHint)
+                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .foregroundStyle(.white)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if let connectedSince = proxyManager.connectedSince, proxyManager.status == .running {
+                Divider().overlay(Color.white.opacity(0.14))
+
+                TimelineView(.periodic(from: .now, by: 1)) { context in
+                    detailRow(label: "Connected for", value: uptimeString(since: connectedSince, now: context.date))
+                }
+            }
+        }
+        .padding(18)
+        .cardStyle()
     }
 
     private var backgroundLayer: some View {
@@ -190,9 +230,8 @@ struct ContentView: View {
             .opacity(canToggleConnection ? 1 : 0.55)
 
             HStack {
-                Button("Copy SOCKS URL") {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(proxyManager.localSocksURL, forType: .string)
+                Button(copiedSocksURL ? "Copied" : "Copy SOCKS URL") {
+                    copySocksURL()
                 }
                 .buttonStyle(.plain)
                 .font(.system(size: 13, weight: .semibold, design: .rounded))
@@ -212,6 +251,7 @@ struct ContentView: View {
         }
         .padding(18)
         .cardStyle()
+        .onExitCommand(perform: toggleConnection)
     }
 
     private var statusPill: some View {
@@ -262,6 +302,28 @@ struct ContentView: View {
                 await proxyManager.start(server: server)
             }
         }
+    }
+
+    private func copySocksURL() {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(proxyManager.localSocksURL, forType: .string)
+        copiedSocksURL = true
+
+        Task {
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            copiedSocksURL = false
+        }
+    }
+
+    private func uptimeString(since: Date, now: Date) -> String {
+        let elapsed = Int(now.timeIntervalSince(since))
+        let hours = elapsed / 3600
+        let minutes = (elapsed % 3600) / 60
+        let seconds = elapsed % 60
+        if hours > 0 {
+            return String(format: "%02dh %02dm %02ds", hours, minutes, seconds)
+        }
+        return String(format: "%02dm %02ds", minutes, seconds)
     }
 }
 

@@ -15,6 +15,7 @@ final class ProxyManager: ObservableObject {
     @Published private(set) var isBusy = false
     @Published var lastError: String?
     @Published private(set) var activeSocksPort: Int = ServiceConfig.servers.first?.endpoint.socksPort ?? 10808
+    @Published private(set) var connectedSince: Date?
 
     private let logger = Logger(subsystem: "com.henryswisvip.xrayvpn", category: "ProxyManager")
     private let xrayRunner = XrayRunner()
@@ -56,6 +57,7 @@ final class ProxyManager: ObservableObject {
 
                 self.logger.error("xray exited with status \(code)")
                 self.status = .failed
+                self.connectedSince = nil
                 self.lastError = "xray exited unexpectedly (status \(code))."
             }
         }
@@ -87,8 +89,10 @@ final class ProxyManager: ObservableObject {
             }
 
             status = .running
+            connectedSince = Date()
         } catch {
             status = .failed
+            connectedSince = nil
             lastError = "Could not start proxy: \(error.localizedDescription)"
         }
     }
@@ -110,6 +114,7 @@ final class ProxyManager: ObservableObject {
         }
 
         status = .stopped
+        connectedSince = nil
         isBusy = false
     }
 }
