@@ -1,0 +1,10 @@
+.DS_Store
+xcuserdata/
+DerivedData/
+XrayVPN.xcodeproj/
+XrayVPNApp/Resources/xray
+XrayVPNApp/Resources/geoip.dat
+XrayVPNApp/Resources/geosite.dat
+XrayPacketTunnel/Resources/xray
+XrayPacketTunnel/Resources/geoip.dat
+XrayPacketTunnel/Resources/geosite.dat

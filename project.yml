@@ -1,0 +1,38 @@
+name: XrayVPN
+options:
+  minimumXcodeGenVersion: 2.38.0
+  deploymentTarget:
+    macOS: "13.0"
+settings:
+  base:
+    SWIFT_VERSION: 5.10
+    DEVELOPMENT_TEAM: ""
+targets:
+  XrayVPNApp:
+    type: application
+    platform: macOS
+    postBuildScripts:
+      - name: Stage xray binary
+        script: |
+          set -euo pipefail
+          SRC="${SRCROOT}/XrayVPNApp/Resources/xray"
+          DST_DIR="${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}"
+          DST="${DST_DIR}/xray"
+          if [[ -f "${SRC}" ]]; then
+            mkdir -p "${DST_DIR}"
+            cp "${SRC}" "${DST}"
+            chmod +x "${DST}"
+          else
+            echo "warning: xray binary not found at ${SRC}"
+          fi
+    sources:
+      - path: XrayVPNApp
+      - path: Shared
+    resources:
+      - path: XrayVPNApp/Resources
+    info:
+      path: XrayVPNApp/Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.henryswisvip.xrayvpn
+        GENERATE_INFOPLIST_FILE: NO
