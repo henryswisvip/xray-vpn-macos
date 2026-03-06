@@ -1,7 +1,7 @@
 import Foundation
 
 enum ServiceConfig {
-    static let appName = "Aegis Connect"
+    static let appName = "Sprout Connect"
 
     // Add or remove servers here; users only see this managed list.
     static let servers: [ManagedServer] = [

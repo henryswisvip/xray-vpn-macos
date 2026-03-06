@@ -2,6 +2,8 @@
 xcuserdata/
 DerivedData/
 XrayVPN.xcodeproj/
+build/
+dist/
 XrayVPNApp/Resources/xray
 XrayVPNApp/Resources/geoip.dat
 XrayVPNApp/Resources/geosite.dat

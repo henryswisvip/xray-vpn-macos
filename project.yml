@@ -32,7 +32,11 @@ targets:
       - path: XrayVPNApp/Resources
     info:
       path: XrayVPNApp/Info.plist
+      properties:
+        CFBundleDisplayName: Sprout Connect
     settings:
       base:
+        PRODUCT_NAME: "Sprout Connect"
         PRODUCT_BUNDLE_IDENTIFIER: com.henryswisvip.xrayvpn
         GENERATE_INFOPLIST_FILE: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon

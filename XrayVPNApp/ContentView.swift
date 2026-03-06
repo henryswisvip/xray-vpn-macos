@@ -162,7 +162,7 @@ struct ContentView: View {
                     .font(.system(size: 27, weight: .heavy, design: .rounded))
                     .foregroundStyle(.white)
 
-                Text("Managed client with selectable service routes")
+                Text("build by a IB student")
                     .font(.system(size: 13, weight: .medium, design: .rounded))
                     .foregroundStyle(Color.white.opacity(0.78))
             }

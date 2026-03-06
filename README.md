@@ -45,12 +45,36 @@ This project gives you:
 3. Click **Connect**.
 4. The app applies macOS SOCKS proxy automatically while connected (macOS may ask for admin permission).
 
+## Build A Shareable App
+
+End users do **not** need Xcode or a separate Xray install. The app bundle includes Xray.
+
+1. Build a shareable zip:
+   ```bash
+   cd xray-vpn-macos
+   ./Scripts/package_app.sh
+   ```
+   Output appears in `dist/` as:
+   - `XrayVPNApp.app`
+   - `XrayVPNApp-<timestamp>.zip`
+
+2. For proper external distribution (recommended), build with signing:
+   ```bash
+   TEAM_ID=YOUR_TEAM_ID ./Scripts/package_app.sh
+   ```
+
+3. For notarized distribution (best user experience), configure a notary profile first:
+   ```bash
+   xcrun notarytool store-credentials xray-notary --apple-id "<APPLE_ID>" --team-id "<TEAM_ID>" --password "<APP_SPECIFIC_PASSWORD>"
+   TEAM_ID=YOUR_TEAM_ID NOTARY_PROFILE=xray-notary ./Scripts/package_app.sh
+   ```
+
 ## Project layout
 
 - `XrayVPNApp/`: SwiftUI app, proxy manager, system proxy manager, and local Xray runner.
 - `XrayVPNApp/Resources/`: bundled `xray`, `geoip.dat`, and `geosite.dat`.
 - `Shared/`: managed server list, shared endpoint, and Xray config builder.
-- `Scripts/`: helper scripts.
+- `Scripts/`: helper scripts (fetch/build/generate/package).
 
 ## Managed servers
 
