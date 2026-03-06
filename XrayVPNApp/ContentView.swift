@@ -3,8 +3,9 @@ import AppKit
 
 struct ContentView: View {
     @EnvironmentObject private var proxyManager: ProxyManager
-    @State private var selectedServerID = ServiceConfig.defaultServerID
+    @AppStorage("selectedServerID") private var selectedServerID = ServiceConfig.defaultServerID
     @State private var pulse = false
+    @State private var didCopySocksURL = false
 
     private var selectedServer: ManagedServer? {
         ServiceConfig.server(withID: selectedServerID)
@@ -42,6 +43,12 @@ struct ContentView: View {
         !proxyManager.isBusy && selectedServer != nil
     }
 
+    private var routeLockMessage: String {
+        canChangeServer
+            ? "Choose the route before connecting."
+            : "Disconnect to change the server route."
+    }
+
     var body: some View {
         ZStack {
             backgroundLayer
@@ -49,6 +56,7 @@ struct ContentView: View {
             VStack(spacing: 18) {
                 headerCard
                 routeCard
+                connectionHintsCard
                 actionCard
 
                 if let error = proxyManager.lastError {
@@ -159,6 +167,21 @@ struct ContentView: View {
             detailRow(label: "Protocol", value: "VMess / WebSocket")
             detailRow(label: "TLS", value: "Disabled")
             detailRow(label: "Local SOCKS5", value: proxyManager.localSocksAddress)
+
+            Text(routeLockMessage)
+                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .foregroundStyle(Color.white.opacity(0.63))
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(18)
+        .cardStyle()
+    }
+
+    private var connectionHintsCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            detailRow(label: "Current route", value: selectedServer?.name ?? "Unavailable")
+            detailRow(label: "System proxy", value: proxyManager.status == .running ? "Enabled" : "Disabled")
+            detailRow(label: "Quick shortcut", value: "⌘ + Return")
         }
         .padding(18)
         .cardStyle()
@@ -186,6 +209,7 @@ struct ContentView: View {
                     )
             }
             .buttonStyle(.plain)
+            .keyboardShortcut(.return, modifiers: [.command])
             .disabled(!canToggleConnection)
             .opacity(canToggleConnection ? 1 : 0.55)
 
@@ -193,6 +217,11 @@ struct ContentView: View {
                 Button("Copy SOCKS URL") {
                     NSPasteboard.general.clearContents()
                     NSPasteboard.general.setString(proxyManager.localSocksURL, forType: .string)
+                    didCopySocksURL = true
+                    Task {
+                        try? await Task.sleep(for: .seconds(1.5))
+                        didCopySocksURL = false
+                    }
                 }
                 .buttonStyle(.plain)
                 .font(.system(size: 13, weight: .semibold, design: .rounded))
@@ -200,9 +229,9 @@ struct ContentView: View {
 
                 Spacer()
 
-                Text("Auto system proxy")
+                Text(didCopySocksURL ? "Copied" : "Auto system proxy")
                     .font(.system(size: 12, weight: .bold, design: .rounded))
-                    .foregroundStyle(Color.white.opacity(0.74))
+                    .foregroundStyle(didCopySocksURL ? Color(red: 0.56, green: 0.95, blue: 0.75) : Color.white.opacity(0.74))
             }
 
             Text("Connect enables macOS SOCKS proxy on your active network service automatically. Disconnect restores previous proxy settings.")
