@@ -14,7 +14,7 @@ final class ProxyManager: ObservableObject {
     @Published private(set) var status: Status = .stopped
     @Published private(set) var isBusy = false
     @Published var lastError: String?
-    @Published private(set) var activeSocksPort: Int = ServiceConfig.servers.first?.endpoint.socksPort ?? 10808
+    @Published private(set) var activeSocksPort: Int = ServiceConfig.defaultSocksPort
     @Published private(set) var connectedSince: Date?
 
     private let logger = Logger(subsystem: "com.henryswisvip.xrayvpn", category: "ProxyManager")

@@ -3,12 +3,21 @@ import SwiftUI
 @main
 struct XrayVPNApp: App {
     @StateObject private var proxyManager = ProxyManager()
+    @StateObject private var serverCatalog = ServerCatalog()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(proxyManager)
-                .frame(minWidth: 760, minHeight: 560)
+                .environmentObject(serverCatalog)
+                .frame(
+                    minWidth: 920,
+                    idealWidth: 1040,
+                    maxWidth: .infinity,
+                    minHeight: 700,
+                    idealHeight: 760,
+                    maxHeight: .infinity
+                )
         }
     }
 }

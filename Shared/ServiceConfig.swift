@@ -2,9 +2,12 @@ import Foundation
 
 enum ServiceConfig {
     static let appName = "Sprout Connect"
+    static let subscriptionURLString = "https://swis.sproutnetworks.co/s/39c264c5b503fe31a416ba02dfb2f28f"
+    static let refreshInterval: TimeInterval = 300
+    static let defaultSocksPort = 10808
 
-    // Add or remove servers here; users only see this managed list.
-    static let servers: [ManagedServer] = [
+    // Fallback list used when subscription feed is unavailable.
+    static let fallbackServers: [ManagedServer] = [
         ManagedServer(
             id: "us-primary",
             name: "US Primary",
@@ -19,16 +22,22 @@ enum ServiceConfig {
                 wsPath: "/",
                 wsHost: "",
                 allowInsecure: false,
-                socksPort: 10808
+                socksPort: defaultSocksPort
             )
         )
     ]
 
+    static var subscriptionURL: URL? {
+        let trimmed = subscriptionURLString.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        return URL(string: trimmed)
+    }
+
     static var defaultServerID: String {
-        servers.first?.id ?? ""
+        fallbackServers.first?.id ?? ""
     }
 
     static func server(withID id: String) -> ManagedServer? {
-        servers.first(where: { $0.id == id })
+        fallbackServers.first(where: { $0.id == id })
     }
 }

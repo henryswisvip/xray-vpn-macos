@@ -11,7 +11,7 @@ This project gives you:
 ## Important caveats
 
 - This is **not** a system VPN tunnel. Only apps configured to use the local proxy will route through Xray.
-- You must configure app or macOS proxy settings manually.
+- The app applies and restores macOS SOCKS proxy settings automatically while connected.
 - For full-device VPN behavior, you need a separate Network Extension architecture.
 
 ## Requirements
@@ -55,8 +55,8 @@ End users do **not** need Xcode or a separate Xray install. The app bundle inclu
    ./Scripts/package_app.sh
    ```
    Output appears in `dist/` as:
-   - `XrayVPNApp.app`
-   - `XrayVPNApp-<timestamp>.zip`
+   - `Sprout Connect.app`
+   - `Sprout Connect-<timestamp>.zip`
 
 2. For proper external distribution (recommended), build with signing:
    ```bash
@@ -78,7 +78,9 @@ End users do **not** need Xcode or a separate Xray install. The app bundle inclu
 
 ## Managed servers
 
-- Edit `Shared/ServiceConfig.swift` to add/remove service-managed servers shown in the dropdown.
+- Configure OTA subscription in `Shared/ServiceConfig.swift`:
+  - Set `subscriptionURLString` to your backend subscription endpoint.
+  - Keep `fallbackServers` as backup when subscription is unavailable.
 
 ## Customize protocol settings
 

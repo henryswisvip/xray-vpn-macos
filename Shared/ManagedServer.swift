@@ -1,6 +1,6 @@
 import Foundation
 
-struct ManagedServer: Identifiable {
+struct ManagedServer: Identifiable, Codable, Equatable {
     let id: String
     let name: String
     let region: String
